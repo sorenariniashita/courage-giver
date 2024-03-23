@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>勇気を与えよう</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+    #fireButton {
+      padding: 15px 30px;
+      font-size: 20px;
+      background-color: red;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    #fireCount {
+      font-size: 24px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>勇気を与えよう</h1>
+  <button id="fireButton" onclick="addFire()">火のスタンプを受け取る</button>
+  <p id="fireCount">火のスタンプ数: 0</p>
+
+  <!-- Firebase JavaScript SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.7.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.7.0/firebase-database.js"></script>
+
+  <script>
+    // Firebaseの設定
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      databaseURL: "YOUR_DATABASE_URL",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_STORAGE_BUCKET",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    // Firebaseの初期化
+    firebase.initializeApp(firebaseConfig);
+
+    // Firebase Realtime Databaseの参照
+    const database = firebase.database();
+    const fireCountRef = database.ref('fireCount');
+
+    // 火のスタンプ数を更新する関数
+    function updateFireCount(count) {
+      document.getElementById('fireCount').textContent = `火のスタンプ数: ${count}`;
+    }
+
+    // 初期表示
+    fireCountRef.once('value', snapshot => {
+      const count = snapshot.val() || 0;
+      updateFireCount(count);
+    });
+
+    // 火のスタンプを追加する関数
+    function addFire() {
+      fireCountRef.transaction(count => {
+        return (count || 0) + 1;
+      }, error => {
+        if (error) {
+          console.error('Transaction failed abnormally!', error);
+        }
+      });
+    }
+
+    // 火のスタンプ数が変更された時の処理
+    fireCountRef.on('value', snapshot => {
+      const count = snapshot.val() || 0;
+      updateFireCount(count);
+    });
+  </script>
+</body>
+</html>
